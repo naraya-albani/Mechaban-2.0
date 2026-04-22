@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,8 +9,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
+import { authClient } from "@/lib/auth/client";
 
 export default function Login() {
+  const handleGoogleSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: window.location.origin,
+      });
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+    }
+  };
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -22,7 +36,11 @@ export default function Login() {
             </CardHeader>
             <CardContent>
               <Field>
-                <Button size="icon-lg" className="gap-2">
+                <Button
+                  size="icon-lg"
+                  className="gap-2"
+                  onClick={handleGoogleSignIn}
+                >
                   <img
                     width="28"
                     height="28"
