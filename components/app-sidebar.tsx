@@ -4,8 +4,8 @@ import * as React from "react";
 import {
   BookOpen,
   Bot,
+  Car,
   CircleUserRound,
-  Map,
   PieChart,
   Settings2,
   SquareTerminal,
@@ -119,14 +119,14 @@ const data = {
       icon: CircleUserRound,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
+      name: "Pesan",
+      url: "/dashboard/order",
       icon: PieChart,
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Garasi",
+      url: "/dashboard/garage",
+      icon: Car,
     },
   ],
 };

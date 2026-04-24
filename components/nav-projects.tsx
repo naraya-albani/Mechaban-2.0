@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -20,12 +20,12 @@ export function NavProjects({
   }[];
 }) {
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup className="group-data-[collapsible=icon]">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild tooltip={item.name}>
               <Link href={item.url}>
                 <item.icon />
                 <span>{item.name}</span>

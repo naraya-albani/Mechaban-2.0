@@ -11,3 +11,24 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Transmition {
+  MANUAL
+  AUTO
+}
+
+enum CarStatus {
+  GOOD
+  REPAIR
+}
+
+model Car {
+  id            String      @id @default(uuid())
+  licensePlate  String
+  merk          String
+  type          String
+  transmition   Transmition
+  year          String
+  status        CarStatus
+  OwnerId       String
+}
