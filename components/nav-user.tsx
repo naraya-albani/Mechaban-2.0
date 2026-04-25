@@ -25,10 +25,25 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth/client";
+import { useRouter } from "next/navigation";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data: session } = authClient.useSession();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx) => {
+          console.error("Sign out error:", ctx.error.message);
+        },
+      },
+    });
+  };
 
   return (
     <SidebarMenu>
@@ -106,7 +121,10 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="cursor-pointer"
+            >
               <LogOut />
               Keluar
             </DropdownMenuItem>

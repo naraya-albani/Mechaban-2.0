@@ -6,9 +6,9 @@ import {
   Bot,
   Car,
   CircleUserRound,
-  PieChart,
   Settings2,
   SquareTerminal,
+  UserPen,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -120,8 +120,8 @@ const data = {
     },
     {
       name: "Pesan",
-      url: "/dashboard/order",
-      icon: PieChart,
+      url: "/dashboard/checkout",
+      icon: UserPen,
     },
     {
       name: "Garasi",

@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import AccountsClient from "./_components/accounts-client";
-import MainLayout from "@/layouts/main-layout";
+import MainLayout from "@/layout/main-layout";
 import { NeonAccount } from "@/types";
 
 const LIMIT = 10;
