@@ -44,30 +44,39 @@ export default function CarDialog({ car = null }: { car?: Car | null }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  async function handleSubmit(formData: FormData) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
     formData.set("ownerId", session?.user.id ?? "");
     formData.set("year", String(year ?? ""));
 
     startTransition(async () => {
       try {
-        if (car) {
-          await updateCar(formData, car.id);
-        } else {
-          await createCar(formData);
+        const result = car
+          ? await updateCar(formData, car.id)
+          : await createCar(formData);
+
+        if (result && !result.success) {
+          setError(result.message);
+          return;
         }
+
         formRef.current?.reset();
         setYear(undefined);
         setDialogOpen(false);
       } catch (err) {
         console.error(err);
-        alert("Gagal menambahkan mobil");
+        setError("Terjadi kesalahan, coba lagi.");
       }
     });
   }
 
-  async function handleDelete() {
+  function handleDelete() {
     if (!car) return;
     startDeleteTransition(async () => {
       try {
@@ -75,7 +84,7 @@ export default function CarDialog({ car = null }: { car?: Car | null }) {
         setDialogOpen(false);
       } catch (err) {
         console.error(err);
-        alert("Gagal menghapus mobil");
+        setError("Gagal menghapus mobil.");
       }
     });
   }
@@ -104,7 +113,7 @@ export default function CarDialog({ car = null }: { car?: Car | null }) {
             Daftarkan semua mobil Anda agar kami bisa bantu rawat.
           </DialogDescription>
         </DialogHeader>
-        <form ref={formRef} action={handleSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit}>
           <FieldGroup className="mb-4">
             <Field>
               <Label htmlFor="license">No. Polisi</Label>
@@ -224,6 +233,8 @@ export default function CarDialog({ car = null }: { car?: Car | null }) {
               </Popover>
             </Field>
           </FieldGroup>
+
+          {error && <p className="text-sm text-destructive mb-3">{error}</p>}
 
           <DialogFooter>
             {car && (

@@ -16,24 +16,33 @@ export async function createCar(formData: FormData) {
     throw new Error("Semua field wajib diisi");
   }
 
-  await prisma.car.create({
-    data: {
-      licensePlate,
-      merk,
-      type,
-      transmition,
-      year,
-      ownerId,
-      status: "GOOD",
-    },
-  });
+  try {
+    await prisma.car.create({
+      data: {
+        licensePlate,
+        merk,
+        type,
+        transmition,
+        year,
+        ownerId,
+        status: "GOOD",
+      },
+    });
 
-  revalidatePath("/dashboard/garage");
+    revalidatePath("/dashboard/garage");
+    return { success: true, message: "Mobil berhasil ditambahkan" };
+  } catch (error) {
+    console.error("Error createCar:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Gagal menyimpan data",
+    };
+  }
 }
 
 export async function readCar(ownerId: string) {
   return await prisma.car.findMany({
-    where: { ownerId: ownerId, deleteAt: null },
+    where: { ownerId: ownerId, deletedAt: null },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -61,7 +70,7 @@ export async function updateCar(formData: FormData, id: string) {
 export async function deleteCar(id: string) {
   await prisma.car.update({
     where: { id },
-    data: { deleteAt: new Date() },
+    data: { deletedAt: new Date() },
   });
 
   revalidatePath("/dashboard/garage");

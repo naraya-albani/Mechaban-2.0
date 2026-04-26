@@ -31,8 +31,50 @@ model Car {
   year          String
   status        CarStatus
   ownerId       String
+
+  transactions  Transaction[]
   
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  deleteAt      DateTime?
+  deletedAt     DateTime?
+}
+
+model Service {
+  id            String      @id @default(uuid())
+  service       String
+  price         Int
+
+  transactions  TransactionService[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+}
+
+model Transaction {
+  id            String      @id @default(uuid())
+  lat           Float
+  lng           Float
+  total         Int
+
+  carId         String
+  car           Car     @relation(fields: [carId], references: [id])
+
+  services      TransactionService[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+}
+
+model TransactionService {
+  id            String      @id @default(uuid())
+
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+
+  serviceId     String
+  service       Service     @relation(fields: [serviceId], references: [id])
+
+  @@unique([transactionId, serviceId])
 }

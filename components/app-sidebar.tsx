@@ -8,6 +8,7 @@ import {
   CircleUserRound,
   Settings2,
   SquareTerminal,
+  ToolCase,
   UserPen,
 } from "lucide-react";
 
@@ -127,6 +128,11 @@ const data = {
       name: "Garasi",
       url: "/dashboard/garage",
       icon: Car,
+    },
+    {
+      name: "Layanan",
+      url: "/admin/services",
+      icon: ToolCase,
     },
   ],
 };
