@@ -5,18 +5,21 @@ import { Transmition } from "@/lib/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
 
 export async function createCar(formData: FormData) {
-  const licensePlate = formData.get("license") as string;
-  const merk = formData.get("merk") as string;
-  const type = formData.get("type") as string;
-  const transmition = formData.get("transmition") as Transmition;
-  const year = formData.get("year") as string;
-  const ownerId = formData.get("ownerId") as string;
-
-  if (!licensePlate || !merk || !type || !transmition || !year || !ownerId) {
-    throw new Error("Semua field wajib diisi");
-  }
-
   try {
+    const licensePlate = formData.get("license") as string;
+    const merk = formData.get("merk") as string;
+    const type = formData.get("type") as string;
+    const transmition = formData.get("transmition") as Transmition;
+    const year = formData.get("year") as string;
+    const ownerId = formData.get("ownerId") as string;
+
+    if (!licensePlate || !merk || !type || !transmition || !year || !ownerId) {
+      return {
+        success: false,
+        message: "Semua field wajib diisi",
+      };
+    }
+
     await prisma.car.create({
       data: {
         licensePlate,
@@ -30,12 +33,18 @@ export async function createCar(formData: FormData) {
     });
 
     revalidatePath("/dashboard/garage");
-    return { success: true, message: "Mobil berhasil ditambahkan" };
+
+    return {
+      success: true,
+      message: "Mobil berhasil ditambahkan",
+    };
   } catch (error) {
     console.error("Error createCar:", error);
+
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Gagal menyimpan data",
+      message:
+        error instanceof Error ? error.message : "Gagal menyimpan data mobil",
     };
   }
 }
@@ -48,30 +57,60 @@ export async function readCar(ownerId: string) {
 }
 
 export async function updateCar(formData: FormData, id: string) {
-  const licensePlate = formData.get("license") as string;
-  const merk = formData.get("merk") as string;
-  const type = formData.get("type") as string;
-  const transmition = formData.get("transmition") as Transmition;
-  const year = formData.get("year") as string;
-  const ownerId = formData.get("ownerId") as string;
+  try {
+    const licensePlate = formData.get("license") as string;
+    const merk = formData.get("merk") as string;
+    const type = formData.get("type") as string;
+    const transmition = formData.get("transmition") as Transmition;
+    const year = formData.get("year") as string;
+    const ownerId = formData.get("ownerId") as string;
 
-  if (!licensePlate || !merk || !type || !transmition || !year || !ownerId) {
-    throw new Error("Semua field wajib diisi");
+    if (!licensePlate || !merk || !type || !transmition || !year || !ownerId) {
+      throw new Error("Semua field wajib diisi");
+    }
+
+    await prisma.car.update({
+      where: { id },
+      data: { licensePlate, merk, type, transmition, year, ownerId },
+    });
+
+    revalidatePath("/dashboard/garage");
+
+    return {
+      success: true,
+      message: "Mobil berhasil diubah",
+    };
+  } catch (error) {
+    console.error("Error updateCar:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Gagal mengubah data mobil",
+    };
   }
-
-  await prisma.car.update({
-    where: { id },
-    data: { licensePlate, merk, type, transmition, year, ownerId },
-  });
-
-  revalidatePath("/dashboard/garage");
 }
 
 export async function deleteCar(id: string) {
-  await prisma.car.update({
-    where: { id },
-    data: { deletedAt: new Date() },
-  });
+  try {
+    await prisma.car.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
-  revalidatePath("/dashboard/garage");
+    revalidatePath("/dashboard/garage");
+
+    return {
+      success: true,
+      message: "Mobil berhasil dihapus",
+    };
+  } catch (error) {
+    console.error("Error deleteCar:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Gagal menghapus data mobil",
+    };
+  }
 }

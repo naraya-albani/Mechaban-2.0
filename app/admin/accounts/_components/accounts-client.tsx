@@ -80,7 +80,7 @@ export default function AccountsClient({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">No</TableHead>
+              <TableHead className="w-12">No.</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>

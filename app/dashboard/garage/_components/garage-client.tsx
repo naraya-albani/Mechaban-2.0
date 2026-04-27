@@ -34,6 +34,7 @@ import { useRef, useState, useTransition } from "react";
 import { authClient } from "@/lib/auth/client";
 import { Car } from "@/lib/generated/prisma/client";
 import { createCar, deleteCar, updateCar } from "@/lib/services/car-action";
+import { toast } from "sonner";
 
 export default function CarDialog({ car = null }: { car?: Car | null }) {
   const { data: session } = authClient.useSession();
@@ -66,6 +67,8 @@ export default function CarDialog({ car = null }: { car?: Car | null }) {
           return;
         }
 
+        toast.success(result?.message ?? "Berhasil");
+
         formRef.current?.reset();
         setYear(undefined);
         setDialogOpen(false);
@@ -80,7 +83,8 @@ export default function CarDialog({ car = null }: { car?: Car | null }) {
     if (!car) return;
     startDeleteTransition(async () => {
       try {
-        await deleteCar(car.id);
+        const result = await deleteCar(car.id);
+        toast.success(result?.message ?? "Berhasil");
         setDialogOpen(false);
       } catch (err) {
         console.error(err);

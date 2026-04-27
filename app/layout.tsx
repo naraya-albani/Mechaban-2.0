@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { authClient } from "@/lib/auth/client";
 import { NeonAuthUIProvider } from "@neondatabase/auth/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -55,6 +56,7 @@ export default function RootLayout({
               social={{ providers: ["google"] }}
             >
               {children}
+              <Toaster />
             </NeonAuthUIProvider>
           </TooltipProvider>
         </ThemeProvider>

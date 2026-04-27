@@ -21,13 +21,10 @@ export interface TransactionService {
 export interface Service {
   id: string;
   service: string;
-  price: Int;
-
-  transactions: TransactionService[];
-
+  price: number;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt: Date?;
+  deletedAt: Date | null;
 }
 
 export interface Car {
