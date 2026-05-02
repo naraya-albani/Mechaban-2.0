@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -30,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatNominal } from "@/lib/helpers/helper";
 import {
   createService,
   deleteService,
@@ -54,9 +54,6 @@ interface Props {
   totalPages: number;
   total: number;
 }
-
-const formatRupiah = (value: number) =>
-  new Intl.NumberFormat("id-ID").format(value);
 
 function ServicesClient({ data, page, search, totalPages, total }: Props) {
   const router = useRouter();
@@ -86,7 +83,7 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Cari nama servis..."
+            placeholder="Cari nama layanan..."
             className="pl-9"
             defaultValue={search}
             onChange={(e) => {
@@ -99,7 +96,7 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
           />
         </div>
         <div className="flex items-center gap-4 shrink-0">
-          {data.length > 0 && <ServiceDialog />}
+          <ServiceDialog />
         </div>
       </div>
 
@@ -109,7 +106,7 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-12">No.</TableHead>
-              <TableHead>Nama Servis</TableHead>
+              <TableHead>Nama Layanan</TableHead>
               <TableHead>Harga</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
@@ -134,15 +131,12 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
                         <ToolCase />
                       </EmptyMedia>
                       <EmptyTitle className="text-xl">
-                        Tidak ada servis yang tersedia
+                        Tidak ada layanan
                       </EmptyTitle>
                       <EmptyDescription className="text-md">
-                        Tambahkan servis untuk membantu pelanggan.
+                        Tambahkan layanan untuk membantu pelanggan.
                       </EmptyDescription>
                     </EmptyHeader>
-                    <EmptyContent>
-                      <ServiceDialog />
-                    </EmptyContent>
                   </Empty>
                 </TableCell>
               </TableRow>
@@ -156,7 +150,7 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
                     {service.service}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    Rp{formatRupiah(service.price)}
+                    Rp{formatNominal(service.price)}
                   </TableCell>
                   <TableCell>
                     <ServiceDialog service={service} />
@@ -170,7 +164,7 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
-        <span>Total {total} data akun</span>
+        <span>Total {total} data layanan</span>
 
         <div className="flex items-center gap-2">
           <Button
@@ -211,14 +205,14 @@ function ServiceDialog({ service = null }: { service?: Service | null }) {
     Number(value.replace(/\./g, "").replace(/[^0-9]/g, ""));
 
   const [display, setDisplay] = useState(
-    service?.price ? formatRupiah(service.price) : "",
+    service?.price ? formatNominal(service.price) : "",
   );
   const [raw, setRaw] = useState(service?.price ?? 0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const parsed = parseRupiah(e.target.value);
     setRaw(parsed);
-    setDisplay(formatRupiah(parsed));
+    setDisplay(formatNominal(parsed));
   };
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -241,6 +235,8 @@ function ServiceDialog({ service = null }: { service?: Service | null }) {
 
         formRef.current?.reset();
         setDialogOpen(false);
+        setDisplay("");
+        setRaw(0);
       } catch (err) {
         console.error(err);
         setError("Terjadi kesalahan, coba lagi.");
@@ -263,30 +259,41 @@ function ServiceDialog({ service = null }: { service?: Service | null }) {
   }
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        setDialogOpen(open);
+        if (!open) {
+          setDisplay(service?.price ? formatNominal(service.price) : "");
+          setRaw(service?.price ?? 0);
+          setError(null);
+          formRef.current?.reset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         {service ? (
           <Button variant="outline">Lihat Detail</Button>
         ) : (
           <Button size={"lg"}>
             <Plus />
-            Tambah Servis
+            Tambah Layanan
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>
-            {service ? "Detail Servis" : "Tambah Servis"}
+            {service ? "Detail Layanan" : "Tambah Layanan"}
           </DialogTitle>
           <DialogDescription>
-            Daftarkan semua servis Anda agar bisa membantu pelanggan.
+            Daftarkan semua layanan Anda agar bisa membantu pelanggan.
           </DialogDescription>
         </DialogHeader>
         <form ref={formRef} onSubmit={handleSubmit}>
           <FieldGroup className="mb-4">
             <Field>
-              <Label htmlFor="service">Nama Servis</Label>
+              <Label htmlFor="service">Nama Layanan</Label>
               <Input
                 id="service"
                 name="service"
@@ -322,9 +329,9 @@ function ServiceDialog({ service = null }: { service?: Service | null }) {
                   <Button variant={"destructive"}>Hapus</Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogTitle>Yakin Ingin Menghapus Servis?</DialogTitle>
+                  <DialogTitle>Yakin Ingin Menghapus Layanan?</DialogTitle>
                   <DialogDescription>
-                    Ini akan membuat servis terhapus secara permanen
+                    Ini akan membuat layanan terhapus secara permanen
                   </DialogDescription>
                   <DialogFooter>
                     <DialogClose asChild>

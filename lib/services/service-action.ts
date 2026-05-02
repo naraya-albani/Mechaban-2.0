@@ -71,6 +71,14 @@ export async function readService({
   return { data, total };
 }
 
+export async function getServicesCheckout() {
+  const services = await prisma.service.findMany({
+    where: { deletedAt: null },
+    orderBy: { service: "asc" },
+  });
+  return services;
+}
+
 export async function updateService(formData: FormData, id: string) {
   try {
     const service = formData.get("service") as string;
