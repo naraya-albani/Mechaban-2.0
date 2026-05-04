@@ -638,7 +638,7 @@ export default function CheckoutClient({
                 </SelectTrigger>
                 <SelectContent>
                   {cars.map((car) => (
-                    <SelectItem id={car.id} value={car.id}>
+                    <SelectItem key={car.id} value={car.id}>
                       {car.merk} {car.type}
                     </SelectItem>
                   ))}
