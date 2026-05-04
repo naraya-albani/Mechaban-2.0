@@ -2,7 +2,7 @@
 
 import { prisma } from "../db";
 
-interface CreateCheckoutInput {
+interface CreateTransactionInput {
   carId: string;
   lat: number;
   lng: number;
@@ -10,7 +10,7 @@ interface CreateCheckoutInput {
   total: number;
 }
 
-export async function createCheckout(input: CreateCheckoutInput) {
+export async function createTransaction(input: CreateTransactionInput) {
   try {
     const { carId, lat, lng, serviceIds, total } = input;
 
@@ -38,6 +38,11 @@ export async function createCheckout(input: CreateCheckoutInput) {
       },
     });
 
+    await prisma.car.update({
+      where: { id: carId },
+      data: { status: "REPAIR" },
+    });
+
     return {
       success: true,
       message: "Transaksi berhasil dibuat.",
@@ -56,7 +61,7 @@ export async function createCheckout(input: CreateCheckoutInput) {
   }
 }
 
-export async function readCheckout({
+export async function readTransaction({
   search = "",
   page = 1,
   limit = 10,
