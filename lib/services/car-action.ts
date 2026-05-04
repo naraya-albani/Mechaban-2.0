@@ -28,7 +28,6 @@ export async function createCar(formData: FormData) {
         transmition,
         year,
         ownerId,
-        status: "GOOD",
       },
     });
 
