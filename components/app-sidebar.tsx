@@ -6,6 +6,8 @@ import {
   Bot,
   Car,
   CircleUserRound,
+  History,
+  Logs,
   Settings2,
   SquareTerminal,
   ToolCase,
@@ -134,6 +136,16 @@ const data = {
       url: "/admin/services",
       icon: ToolCase,
     },
+    {
+      name: "Pemesanan",
+      url: "/dashboard/order",
+      icon: Logs,
+      isActive: true,
+      items: [
+        { title: "Menunggu Pembayaran", url: "/dashboard/waiting" },
+        { title: "Daftar Transaksi", url: "/dashboard/transactions" },
+      ],
+    },
   ],
 };
 
@@ -144,7 +156,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavHome />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        {/* <NavMain items={data.navMain} /> */}
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
