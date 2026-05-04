@@ -20,6 +20,12 @@ import {
 } from "@/components/ui/empty";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import {
   Table,
@@ -81,19 +87,22 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
       {/* Search & Action */}
       <div className="flex items-center justify-between mb-4 gap-4">
         <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Cari nama layanan..."
-            className="pl-9"
-            defaultValue={search}
-            onChange={(e) => {
-              clearTimeout(searchTimeout);
-              const val = e.target.value;
-              searchTimeout = setTimeout(() => {
-                updateParams({ search: val, page: "1" });
-              }, 500);
-            }}
-          />
+          <InputGroup>
+            <InputGroupInput
+              placeholder="Cari nama layanan..."
+              defaultValue={search}
+              onChange={(e) => {
+                clearTimeout(searchTimeout);
+                const val = e.target.value;
+                searchTimeout = setTimeout(() => {
+                  updateParams({ search: val, page: "1" });
+                }, 500);
+              }}
+            />
+            <InputGroupAddon align="inline-start">
+              <Search />
+            </InputGroupAddon>
+          </InputGroup>
         </div>
         <div className="flex items-center gap-4 shrink-0">
           <ServiceDialog />
@@ -304,16 +313,17 @@ function ServiceDialog({ service = null }: { service?: Service | null }) {
             <Field>
               <Label htmlFor="price">Harga</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                  Rp
-                </span>
-                <Input
-                  id="price"
-                  placeholder="100.000"
-                  value={display}
-                  onChange={handleChange}
-                  className="pl-9"
-                />
+                <InputGroup>
+                  <InputGroupInput
+                    id="price"
+                    placeholder="100.000"
+                    value={display}
+                    onChange={handleChange}
+                  />
+                  <InputGroupAddon>
+                    <InputGroupText>Rp</InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
                 {/* Hidden input yang dikirim ke server action */}
                 <input type="hidden" name="price" value={raw} />
               </div>
