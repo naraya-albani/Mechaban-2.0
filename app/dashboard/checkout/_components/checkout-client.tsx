@@ -34,7 +34,7 @@ import { formatNominal } from "@/lib/helpers/helper";
 import { Car, Service } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { createCheckout } from "@/lib/services/checkout-action";
+import { createTransaction } from "@/lib/services/transaction-action";
 import { toast } from "sonner";
 import {
   Select,
@@ -180,7 +180,7 @@ export default function CheckoutClient({
     if (selected.length === 0) return setError("Pilih minimal satu layanan.");
 
     setLoadingSubmit(true);
-    const result = await createCheckout({
+    const result = await createTransaction({
       carId,
       lat: destination.lat,
       lng: destination.lng,
