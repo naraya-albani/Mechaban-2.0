@@ -22,6 +22,14 @@ enum CarStatus {
   REPAIR
 }
 
+enum TransactionStatus {
+  PAYMENT
+  WAITING
+  REPAIR
+  DONE
+  CANCELLED
+}
+
 model Car {
   id            String      @id @default(uuid())
   licensePlate  String
@@ -29,7 +37,7 @@ model Car {
   type          String
   transmition   Transmition
   year          String
-  status        CarStatus
+  status        CarStatus   @default(GOOD)
   ownerId       String
 
   transactions  Transaction[]
@@ -56,6 +64,7 @@ model Transaction {
   lat           Float
   lng           Float
   total         Int
+  status        TransactionStatus @default(PAYMENT)
 
   carId         String
   car           Car     @relation(fields: [carId], references: [id])
