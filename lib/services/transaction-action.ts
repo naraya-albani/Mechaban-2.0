@@ -1,6 +1,9 @@
 "use server";
 
+import { endOfDay } from "date-fns";
 import { prisma } from "../db";
+import { Prisma } from "../generated/prisma/client";
+import { TransactionStatus } from "../generated/prisma/enums";
 
 interface CreateTransactionInput {
   carId: string;
@@ -65,17 +68,38 @@ export async function readTransaction({
   search = "",
   page = 1,
   limit = 10,
+  status,
+  dateFrom,
+  dateTo,
 }: {
   search?: string;
   page?: number;
   limit?: number;
+  status?: TransactionStatus;
+  dateFrom?: Date;
+  dateTo?: Date;
 } = {}) {
   const offset = (page - 1) * limit;
 
-  const where = {
+  const where: Prisma.TransactionWhereInput = {
     deletedAt: null,
+    ...(status && { status }),
+    ...(dateFrom || dateTo
+      ? {
+          createdAt: {
+            ...(dateFrom && { gte: dateFrom }),
+            ...(dateTo && { lte: endOfDay(dateTo) }),
+          },
+        }
+      : {}),
     ...(search && {
-      transaction: { contains: search, mode: "insensitive" as const },
+      car: {
+        OR: [
+          { merk: { contains: search, mode: "insensitive" } },
+          { type: { contains: search, mode: "insensitive" } },
+          { licensePlate: { contains: search, mode: "insensitive" } },
+        ],
+      },
     }),
   };
 
@@ -85,6 +109,10 @@ export async function readTransaction({
       orderBy: { createdAt: "desc" },
       skip: offset,
       take: limit,
+      include: {
+        car: true,
+        services: { include: { service: true } },
+      },
     }),
     prisma.transaction.count({ where }),
   ]);
