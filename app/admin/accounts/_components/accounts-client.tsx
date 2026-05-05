@@ -119,7 +119,7 @@ export default function AccountsClient({
                         src={account.image || undefined}
                         referrerPolicy="no-referrer"
                       />
-                      <AvatarFallback>
+                      <AvatarFallback suppressHydrationWarning>
                         {account.name.charAt(0) +
                           account.name.split(" ")[1]?.charAt(0) || ""}
                       </AvatarFallback>

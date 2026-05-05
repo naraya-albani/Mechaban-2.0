@@ -60,7 +60,7 @@ export function NavUser() {
                   alt={session?.user.name}
                   referrerPolicy="no-referrer"
                 />
-                <AvatarFallback className="rounded-lg">
+                <AvatarFallback className="rounded-lg" suppressHydrationWarning>
                   {session?.user.name.charAt(0) ||
                     "" + session?.user.name.split(" ")[1]?.charAt(0) ||
                     ""}
