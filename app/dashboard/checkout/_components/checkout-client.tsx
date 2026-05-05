@@ -30,7 +30,6 @@ import {
   MarkerTooltip,
   useMap,
 } from "@/components/ui/map";
-import { formatNominal } from "@/lib/helpers/helper";
 import { Car, Service } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
@@ -669,7 +668,7 @@ export default function CheckoutClient({
                           {service.service}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Rp{formatNominal(service.price)}
+                          Rp{service.price.toLocaleString("id-ID")}
                         </p>
                       </div>
                       <Switch
@@ -686,15 +685,15 @@ export default function CheckoutClient({
           <div className="border-t space-y-2.5 pt-5">
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Subtotal</span>
-              <span>Rp{formatNominal(subtotal)}</span>
+              <span>Rp{subtotal.toLocaleString("id-ID")}</span>
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Pajak (11%)</span>
-              <span>Rp{formatNominal(tax)}</span>
+              <span>Rp{tax.toLocaleString("id-ID")}</span>
             </div>
             <div className="flex justify-between font-medium pt-2 border-t">
               <span>Total</span>
-              <span>Rp{formatNominal(total)}</span>
+              <span>Rp{total.toLocaleString("id-ID")}</span>
             </div>
           </div>
           <Button

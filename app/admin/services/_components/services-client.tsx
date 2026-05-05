@@ -35,7 +35,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatNominal } from "@/lib/helpers/helper";
 import {
   createService,
   deleteService,
@@ -159,7 +158,7 @@ function ServicesClient({ data, page, search, totalPages, total }: Props) {
                     {service.service}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    Rp{formatNominal(service.price)}
+                    Rp{service.price.toLocaleString("id-ID")}
                   </TableCell>
                   <TableCell>
                     <ServiceDialog service={service} />
@@ -214,14 +213,14 @@ function ServiceDialog({ service = null }: { service?: Service | null }) {
     Number(value.replace(/\./g, "").replace(/[^0-9]/g, ""));
 
   const [display, setDisplay] = useState(
-    service?.price ? formatNominal(service.price) : "",
+    service?.price ? service.price.toLocaleString("id-ID") : "",
   );
   const [raw, setRaw] = useState(service?.price ?? 0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const parsed = parseRupiah(e.target.value);
     setRaw(parsed);
-    setDisplay(formatNominal(parsed));
+    setDisplay(parsed.toLocaleString("id-ID"));
   };
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -273,7 +272,9 @@ function ServiceDialog({ service = null }: { service?: Service | null }) {
       onOpenChange={(open) => {
         setDialogOpen(open);
         if (!open) {
-          setDisplay(service?.price ? formatNominal(service.price) : "");
+          setDisplay(
+            service?.price ? service.price.toLocaleString("id-ID") : "",
+          );
           setRaw(service?.price ?? 0);
           setError(null);
           formRef.current?.reset();
