@@ -40,7 +40,7 @@ import {
   deleteService,
   updateService,
 } from "@/lib/services/service-action";
-import { Service } from "@/types";
+import { Service } from "@/lib/generated/prisma/client";
 import {
   ChevronLeft,
   ChevronRight,

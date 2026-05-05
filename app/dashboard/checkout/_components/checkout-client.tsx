@@ -30,7 +30,6 @@ import {
   MarkerTooltip,
   useMap,
 } from "@/components/ui/map";
-import { Car, Service } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { createTransaction } from "@/lib/services/transaction-action";
@@ -42,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Car, Service } from "@/lib/generated/prisma/client";
 
 interface SearchResult {
   name: string;
