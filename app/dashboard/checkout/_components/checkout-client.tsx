@@ -64,11 +64,6 @@ interface Suggestion {
   lng: number;
 }
 
-interface CheckoutClientProps {
-  services: Service[];
-  cars: Car[];
-}
-
 const CENTER_POINT = {
   lng: 114.15228928828692,
   lat: -8.366400812635693,
@@ -121,7 +116,10 @@ function MapFlyController({
 export default function CheckoutClient({
   services,
   cars,
-}: CheckoutClientProps) {
+}: {
+  services: Service[];
+  cars: Car[];
+}) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);

@@ -74,6 +74,8 @@ model Transaction {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   deletedAt     DateTime?
+
+  mechanics     TransactionMechanic[]
 }
 
 model TransactionService {
@@ -86,4 +88,30 @@ model TransactionService {
   service       Service     @relation(fields: [serviceId], references: [id])
 
   @@unique([transactionId, serviceId])
+}
+
+model TransactionMechanic {
+  id            String      @id @default(uuid())
+
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+
+  mechanicId    String
+  mechanic      Mechanic    @relation(fields: [mechanicId], references: [id])
+
+  @@unique([transactionId, mechanicId])
+}
+
+model Mechanic {
+  id            String      @id @default(uuid())
+  idAccount     String      @unique
+  name          String
+  phone         String
+  salary        Int         @default(0)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  transactions  TransactionMechanic[]
 }

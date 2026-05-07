@@ -7,6 +7,7 @@ import {
   Car,
   CircleUserRound,
   History,
+  LayoutDashboard,
   Logs,
   Settings2,
   SquareTerminal,
@@ -135,6 +136,11 @@ const data = {
       name: "Layanan",
       url: "/admin/services",
       icon: ToolCase,
+    },
+    {
+      name: "Mekanik",
+      url: "/mechanic",
+      icon: LayoutDashboard,
     },
     {
       name: "Pemesanan",
