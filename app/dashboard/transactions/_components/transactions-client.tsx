@@ -54,6 +54,7 @@ interface TransactionsClientProps {
 
 const TRANSACTION_STATUSES = [
   { key: "PAYMENT", label: "Menunggu Pembayaran" },
+  { key: "PENDING", label: "Menunggu Konfirmasi" },
   { key: "WAITING", label: "Menunggu Montir" },
   { key: "REPAIR", label: "Sedang Diperbaiki" },
   { key: "DONE", label: "Selesai" },
@@ -67,6 +68,10 @@ const STATUS_STYLES: Record<
   PAYMENT: {
     dot: "bg-amber-400",
     active: "border-amber-400  bg-amber-50  text-amber-700",
+  },
+  PENDING: {
+    dot: "bg-yellow-400",
+    active: "border-yellow-400 bg-yellow-50 text-yellow-700",
   },
   WAITING: {
     dot: "bg-blue-400",
