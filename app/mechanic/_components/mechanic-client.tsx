@@ -2,23 +2,37 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
   Car,
   Service,
   Transaction,
   TransactionService,
 } from "@/lib/generated/prisma/client";
 import { timeAgo } from "@/lib/helper/helper";
+import { takeOrder } from "@/lib/services/mechanic-action";
 import {
   Activity,
   ArrowDownRight,
   ArrowUpRight,
+  Check,
   Clock,
   DollarSign,
+  Info,
   MapPin,
   ShoppingCart,
   Users,
   Wrench,
 } from "lucide-react";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 type TransactionWithRelations = Transaction & {
   car: Car;
@@ -97,9 +111,83 @@ function MiniBar({ heights }: { heights: number[] }) {
 
 export default function MechanicClient({
   orders,
+  mechanicId,
 }: {
   orders: TransactionWithRelations[];
+  mechanicId?: string;
 }) {
+  function OrderItem({
+    item,
+    isDetail = false,
+  }: {
+    item: TransactionWithRelations;
+    isDetail?: boolean;
+  }) {
+    const [isPending, startTransition] = useTransition();
+
+    const handleTakeOrder = () => {
+      if (!mechanicId) return;
+
+      startTransition(async () => {
+        const result = await takeOrder(item.id, mechanicId);
+        console.log("result: ", result);
+        if (!result) return;
+
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
+      });
+    };
+
+    return (
+      <div className="px-5 py-3.5 flex items-start gap-3 hover:bg-muted/40 transition-colors">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-foreground truncate">
+            {item.car.licensePlate} - {item.car.merk} {item.car.type}
+          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <Wrench className="w-3 h-3" />
+            <p className="text-xs text-muted-foreground">
+              {item.services.map((s) => s.service.service).join(", ")}
+            </p>
+          </div>
+          <Button
+            variant={"link"}
+            className="flex items-center gap-2 p-0 h-auto mt-1 text-foreground"
+            onClick={() =>
+              window.open(
+                `https://www.google.com/maps?q=${item.lat},${item.lng}`,
+                "_blank",
+              )
+            }
+          >
+            <MapPin className="w-3 h-3" />
+            <p className="text-xs">{item.locationName}</p>
+          </Button>
+        </div>
+        <div className="text-right space-y-1 shrink-0">
+          <div className="space-x-2">
+            <Button variant="outline">
+              {isDetail ? <Info /> : "Lihat Detail"}
+            </Button>
+            <Button
+              onClick={handleTakeOrder}
+              disabled={isPending || !mechanicId}
+            >
+              {isPending ? "Mengambil..." : isDetail ? <Check /> : "Ambil"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
+            <Clock className="w-3 h-3" />
+            {timeAgo(item.createdAt)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* KPI Cards */}
@@ -158,52 +246,31 @@ export default function MechanicClient({
             </h2>
           </div>
           {orders.length > 5 && (
-            <button className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              Lihat Semua →
-            </button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  Lihat Semua →
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[80vh] flex flex-col p-0">
+                <DialogHeader className="px-6 pt-6 pb-4">
+                  <DialogTitle>Lis Pesanan</DialogTitle>
+                  <DialogDescription>
+                    Berikut adalah semua pesanan yang masuk.
+                  </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="h-[60vh]">
+                  {orders.map((item) => (
+                    <OrderItem key={item.id} item={item} isDetail={true} />
+                  ))}
+                </ScrollArea>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
         <div className="divide-y">
           {orders.slice(0, 5).map((item) => (
-            <div
-              key={item.id}
-              className="px-5 py-3.5 flex items-start gap-3 hover:bg-muted/40 transition-colors"
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {item.car.licensePlate} - {item.car.merk} {item.car.type}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Wrench className="w-3 h-3" />
-                  <p className="text-xs text-muted-foreground">
-                    {item.services.map((s) => s.service.service).join(", ")}
-                  </p>
-                </div>
-                <Button
-                  variant={"link"}
-                  className="flex items-center gap-2 p-0 h-auto mt-1 text-foreground"
-                  onClick={() =>
-                    window.open(
-                      `https://www.google.com/maps?q=${item.lat},${item.lng}`,
-                      "_blank",
-                    )
-                  }
-                >
-                  <MapPin className="w-3 h-3" />
-                  <p className="text-xs">{item.locationName}</p>
-                </Button>
-              </div>
-              <div className="text-right space-y-1 shrink-0">
-                <div className="space-x-4">
-                  <Button variant="outline">Lihat Detail</Button>
-                  <Button>Ambil</Button>
-                </div>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-                  <Clock className="w-3 h-3" />
-                  {timeAgo(item.createdAt)}
-                </p>
-              </div>
-            </div>
+            <OrderItem key={item.id} item={item} />
           ))}
         </div>
       </div>

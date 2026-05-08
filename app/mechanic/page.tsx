@@ -1,9 +1,11 @@
 import MainLayout from "@/layout/main-layout";
 import MechanicClient from "./_components/mechanic-client";
 import { readOrders } from "@/lib/services/mechanic-action";
+import { auth } from "@/lib/auth/server";
 
 export default async function Mechanic() {
   const orders = await readOrders();
+  const { data: session } = await auth.getSession();
 
   return (
     <MainLayout breadcrumbs={[{ label: "Mekanik" }]}>
@@ -15,7 +17,7 @@ export default async function Mechanic() {
           </h1>
         </div>
 
-        <MechanicClient orders={orders} />
+        <MechanicClient orders={orders} mechanicId={session?.user?.id ?? ""} />
       </main>
     </MainLayout>
   );

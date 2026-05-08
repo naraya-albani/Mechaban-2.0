@@ -1,7 +1,7 @@
 "use server";
 
 import { NeonAccount } from "@/types";
-import { sql } from "../db";
+import { prisma, sql } from "../db";
 
 const LIMIT = 10;
 
@@ -69,6 +69,34 @@ export async function updateRoleAccount({
       SET role = ${role}
       WHERE id = ${accountId}
     `;
+
+    const [updatedAccount] = await sql`
+      SELECT id, email, name, "image", role
+      FROM neon_auth.user
+      WHERE id = ${accountId}
+    `;
+
+    const isMechanic = await prisma.mechanic.findUnique({
+      where: { idAccount: accountId },
+    });
+
+    if (!isMechanic && role === "mechanic") {
+      await prisma.mechanic.create({
+        data: {
+          idAccount: updatedAccount.id,
+          email: updatedAccount.email,
+          name: updatedAccount.name,
+          image: updatedAccount.image,
+        },
+      });
+    } else if (isMechanic) {
+      await prisma.mechanic.update({
+        where: { idAccount: accountId },
+        data: {
+          deletedAt: role === "mechanic" ? null : new Date(),
+        },
+      });
+    }
 
     return {
       success: true,

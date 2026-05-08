@@ -1,7 +1,8 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { prisma } from "../db";
-import { Transaction, TransactionStatus } from "../generated/prisma/client";
+import { TransactionStatus } from "../generated/prisma/client";
 
 async function reverseGeocode(lat: number, lng: number): Promise<string> {
   try {
@@ -56,60 +57,84 @@ export async function readOrders() {
 }
 
 export async function takeOrder(orderId: string, mechanicId: string) {
-  return await prisma.$transaction(async (tx) => {
-    // Lock row Transaction
-    const [order] = await tx.$queryRaw<
-      { id: string; status: TransactionStatus }[]
-    >`
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const mechanic = await tx.mechanic.findUnique({
+        where: { idAccount: mechanicId },
+      });
+
+      if (!mechanic) {
+        return {
+          success: false,
+          message: "Tidak ditemukan mekanik dengan ID tersebut",
+        };
+      }
+
+      // Lock row Transaction
+      const [order] = await tx.$queryRaw<
+        { id: string; status: TransactionStatus }[]
+      >`
       SELECT id, status FROM "Transaction"
       WHERE id = ${orderId}
       FOR UPDATE
     `;
 
-    if (!order) {
-      return {
-        success: false,
-        message: "Pesanan tidak ditemukan",
-      };
-    }
+      if (!order) {
+        return {
+          success: false,
+          message: "Pesanan tidak ditemukan",
+        };
+      }
 
-    if (order.status !== "WAITING") {
-      return {
-        success: false,
-        message: "Pesanan tidak tersedia",
-      };
-    }
+      // if (order.status !== "PENDING") {
+      //   return {
+      //     success: false,
+      //     message: "Pesanan tidak tersedia",
+      //   };
+      // }
 
-    // Cek apakah sudah ada mekanik yang mengambil order ini
-    const existing = await tx.transactionMechanic.findFirst({
-      where: { transactionId: orderId },
+      // Cek apakah sudah ada mekanik yang mengambil order ini
+      const existing = await tx.transactionMechanic.findFirst({
+        where: { transactionId: orderId },
+      });
+
+      if (existing) {
+        return {
+          success: false,
+          message: "Pesanan sudah diambil mekanik lain",
+        };
+      }
+
+      // Assign mekanik
+      const result = await tx.transactionMechanic.create({
+        data: {
+          transactionId: orderId,
+          mechanicId: mechanic.id,
+        },
+      });
+
+      // Update status order jadi WAITING
+      await tx.transaction.update({
+        where: { id: orderId },
+        data: { status: "WAITING" },
+      });
+
+      revalidatePath("/mechanic");
+
+      return {
+        success: true,
+        message: "Pesanan berhasil diambil",
+        data: result,
+      };
     });
 
-    if (existing) {
-      return {
-        success: false,
-        message: "Pesanan sudah diambil mekanik lain",
-      };
-    }
-
-    // Assign mekanik
-    const result = await tx.transactionMechanic.create({
-      data: {
-        transactionId: orderId,
-        mechanicId,
-      },
-    });
-
-    // Update status order jadi REPAIR
-    await tx.transaction.update({
-      where: { id: orderId },
-      data: { status: "REPAIR" },
-    });
+    return result;
+  } catch (error) {
+    console.error("Error takeOrder:", error);
 
     return {
-      success: true,
-      message: "Pesanan berhasil diambil",
-      data: result,
+      success: false,
+      message: "Terjadi kesalahan saat mengambil pesanan.",
     };
-  });
+  }
 }

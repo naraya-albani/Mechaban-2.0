@@ -24,6 +24,7 @@ enum CarStatus {
 
 enum TransactionStatus {
   PAYMENT
+  PENDING
   WAITING
   REPAIR
   DONE
@@ -106,8 +107,10 @@ model Mechanic {
   id            String      @id @default(uuid())
   idAccount     String      @unique
   name          String
-  phone         String
+  email         String
+  phone         String?
   salary        Int         @default(0)
+  image         String?
 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

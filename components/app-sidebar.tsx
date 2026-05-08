@@ -118,11 +118,6 @@ const data = {
   ],
   projects: [
     {
-      name: "Akun",
-      url: "/admin/accounts",
-      icon: CircleUserRound,
-    },
-    {
       name: "Pesan",
       url: "/dashboard/checkout",
       icon: UserPen,
@@ -133,16 +128,6 @@ const data = {
       icon: Car,
     },
     {
-      name: "Layanan",
-      url: "/admin/services",
-      icon: ToolCase,
-    },
-    {
-      name: "Mekanik",
-      url: "/mechanic",
-      icon: LayoutDashboard,
-    },
-    {
       name: "Pemesanan",
       url: "/dashboard/order",
       icon: Logs,
@@ -151,6 +136,21 @@ const data = {
         { title: "Menunggu Pembayaran", url: "/dashboard/waiting" },
         { title: "Daftar Transaksi", url: "/dashboard/transactions" },
       ],
+    },
+    {
+      name: "Layanan",
+      url: "/admin/services",
+      icon: ToolCase,
+    },
+    {
+      name: "Akun",
+      url: "/admin/accounts",
+      icon: CircleUserRound,
+    },
+    {
+      name: "Mekanik",
+      url: "/mechanic",
+      icon: LayoutDashboard,
     },
   ],
 };
