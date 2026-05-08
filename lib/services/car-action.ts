@@ -48,9 +48,13 @@ export async function createCar(formData: FormData) {
   }
 }
 
-export async function readCar(ownerId: string) {
+export async function readCar(ownerId: string, isCheckout: boolean = false) {
   return await prisma.car.findMany({
-    where: { ownerId: ownerId, deletedAt: null },
+    where: {
+      ownerId: ownerId,
+      deletedAt: null,
+      ...(isCheckout && { status: "GOOD" }),
+    },
     orderBy: { createdAt: "desc" },
   });
 }

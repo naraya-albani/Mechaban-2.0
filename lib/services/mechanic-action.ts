@@ -22,7 +22,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
     const data = await res.json();
 
     return (
-      data.display_name ??
+      (data.name || data.display_name.split(",")[0]) ??
       data.address?.road ??
       data.address?.suburb ??
       `${lat}, ${lng}`

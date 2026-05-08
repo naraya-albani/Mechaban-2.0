@@ -5,6 +5,7 @@ import {
   Loader2,
   LocateFixed,
   MapPin,
+  Plus,
   Route,
   Search,
   X,
@@ -42,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Car, Service } from "@/lib/generated/prisma/client";
+import CarDialog from "../../garage/_components/garage-client";
 
 interface SearchResult {
   name: string;
@@ -629,18 +631,23 @@ export default function CheckoutClient({
             </Field>
             <Field>
               <FieldLabel htmlFor="location">Pilih Mobil</FieldLabel>
-              <Select name="car" value={carId} onValueChange={setCarId}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih mobil yang mau diservis" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cars.map((car) => (
-                    <SelectItem key={car.id} value={car.id}>
-                      {car.merk} {car.type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2 items-center">
+                {cars.length > 0 && (
+                  <Select name="car" value={carId} onValueChange={setCarId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih mobil yang mau diservis" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cars.map((car) => (
+                        <SelectItem key={car.id} value={car.id}>
+                          {car.merk} {car.type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <CarDialog />
+              </div>
             </Field>
           </FieldGroup>
         </div>

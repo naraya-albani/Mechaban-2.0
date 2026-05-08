@@ -295,7 +295,7 @@ export default function TransactionsClient({
       </ItemGroup>
 
       <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
-        <span>Total {total} data transaksi</span>
+        <span>Total {totalData} data transaksi</span>
 
         <div className="flex items-center gap-2">
           <Button

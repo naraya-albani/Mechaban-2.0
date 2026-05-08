@@ -7,7 +7,7 @@ import { readCar } from "@/lib/services/car-action";
 export default async function Checkout() {
   const { data: session } = await auth.getSession();
   const services = await getServicesCheckout();
-  const cars = session?.user.id ? await readCar(session.user.id) : [];
+  const cars = session?.user.id ? await readCar(session.user.id, true) : [];
 
   return (
     <MainLayout breadcrumbs={[{ label: "Checkout" }]}>
