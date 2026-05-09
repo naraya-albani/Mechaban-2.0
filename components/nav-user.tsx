@@ -24,26 +24,34 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth/client";
-import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
+import { signOut } from "@/lib/services/auth-action";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { data: session } = authClient.useSession();
-  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<User | null>(null);
 
-  const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/");
-        },
-        onError: (ctx) => {
-          console.error("Sign out error:", ctx.error.message);
-        },
-      },
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
     });
-  };
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <SidebarMenu>
@@ -56,21 +64,22 @@ export function NavUser() {
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
-                  src={session?.user.image || undefined}
-                  alt={session?.user.name}
+                  src={user?.user_metadata?.avatar_url}
+                  alt={user?.user_metadata?.full_name}
                   referrerPolicy="no-referrer"
                 />
                 <AvatarFallback className="rounded-lg" suppressHydrationWarning>
-                  {session?.user.name.charAt(0) ||
-                    "" + session?.user.name.split(" ")[1]?.charAt(0) ||
+                  {user?.user_metadata?.full_name.charAt(0) ||
+                    "" +
+                      user?.user_metadata?.full_name.split(" ")[1]?.charAt(0) ||
                     ""}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {session?.user.name}
+                  {user?.user_metadata?.full_name}
                 </span>
-                <span className="truncate text-xs">{session?.user.email}</span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -85,23 +94,24 @@ export function NavUser() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src={session?.user.image || undefined}
-                    alt={session?.user.name}
+                    src={user?.user_metadata?.avatar_url}
+                    alt={user?.user_metadata?.full_name}
                     referrerPolicy="no-referrer"
                   />
                   <AvatarFallback className="rounded-lg">
-                    {session?.user.name.charAt(0) ||
-                      "" + session?.user.name.split(" ")[1]?.charAt(0) ||
+                    {user?.user_metadata?.full_name.charAt(0) ||
+                      "" +
+                        user?.user_metadata?.full_name
+                          .split(" ")[1]
+                          ?.charAt(0) ||
                       ""}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {session?.user.name}
+                    {user?.user_metadata?.full_name}
                   </span>
-                  <span className="truncate text-xs">
-                    {session?.user.email}
-                  </span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -121,10 +131,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleSignOut}
-              className="cursor-pointer"
-            >
+            <DropdownMenuItem onClick={signOut} className="cursor-pointer">
               <LogOut />
               Keluar
             </DropdownMenuItem>

@@ -2,6 +2,11 @@
 
 import { NeonAccount } from "@/types";
 import { prisma, sql } from "../db";
+import { createClient } from "../supabase/client";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
+
+type Role = "admin" | "mechanic" | "user";
 
 const LIMIT = 10;
 
@@ -111,4 +116,31 @@ export async function updateRoleAccount({
         error instanceof Error ? error.message : "Gagal memperbarui peran akun",
     };
   }
+}
+
+export async function updateUserRole(targetUserId: string, newRole: Role) {
+  const supabase = await createClient();
+
+  // Verifikasi yang request adalah admin
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const role = user.app_metadata?.role;
+  if (role !== "admin") throw new Error("Forbidden");
+
+  // Gunakan service_role untuk update app_metadata
+  const adminClient = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+
+  const { error } = await adminClient.auth.admin.updateUserById(targetUserId, {
+    app_metadata: { role: newRole },
+  });
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/accounts");
 }

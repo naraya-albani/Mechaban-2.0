@@ -3,8 +3,6 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
-import { authClient } from "@/lib/auth/client";
-import { NeonAuthUIProvider } from "@neondatabase/auth/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 
@@ -51,13 +49,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <NeonAuthUIProvider
-              authClient={authClient}
-              social={{ providers: ["google"] }}
-            >
-              {children}
-              <Toaster />
-            </NeonAuthUIProvider>
+            {children}
+            <Toaster />
           </TooltipProvider>
         </ThemeProvider>
       </body>
